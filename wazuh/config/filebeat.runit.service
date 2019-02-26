@@ -1,3 +1,0 @@
-#!/bin/sh
-service filebeat start
-tail -f /var/log/filebeat/filebeat

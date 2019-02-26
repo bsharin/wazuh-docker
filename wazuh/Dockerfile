@@ -1,8 +1,6 @@
 # Wazuh App Copyright (C) 2018 Wazuh Inc. (License GPLv2)
 FROM phusion/baseimage:latest
-ARG FILEBEAT_VERSION=6.5.4
-ARG WAZUH_VERSION=3.8.0-1
-
+ARG WAZUH_VERSION=3.8.2-1
 
 # Updating image
 RUN apt-get update && apt-get upgrade -y -o Dpkg::Options::="--force-confold"
@@ -29,6 +27,7 @@ RUN add-apt-repository universe
 RUN apt-get update && apt-get -y install openssl postfix bsd-mailx python-boto python-pip  \
     apt-transport-https vim expect nodejs python-cryptography wazuh-manager=${WAZUH_VERSION} \
     wazuh-api=${WAZUH_VERSION} mailutils libsasl2-modules
+RUN pip install docker
 
 # Adding first run script.
 ADD config/data_dirs.env /data_dirs.env
@@ -39,19 +38,12 @@ RUN chmod 755 /init.bash &&\
     sync && /init.bash &&\
     sync && rm /init.bash
 
-# Installing and configuring fiebeat
-RUN curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-${FILEBEAT_VERSION}-amd64.deb &&\
-    dpkg -i filebeat-${FILEBEAT_VERSION}-amd64.deb && rm -f filebeat-${FILEBEAT_VERSION}-amd64.deb
-COPY config/filebeat.yml /etc/filebeat/
-RUN chmod go-w /etc/filebeat/filebeat.yml
-
 # Adding entrypoint
 ADD config/entrypoint.sh /entrypoint.sh
 RUN chmod 755 /entrypoint.sh
 
 # Setting volumes
 VOLUME ["/var/ossec/data"]
-VOLUME ["/etc/filebeat"]
 VOLUME ["/etc/postfix"]
 
 # Services ports
@@ -72,10 +64,6 @@ RUN chmod +x /etc/service/wazuh-api/run
 RUN mkdir /etc/service/postfix
 COPY config/postfix.runit.service /etc/service/postfix/run
 RUN chmod +x /etc/service/postfix/run
-
-RUN mkdir /etc/service/filebeat
-COPY config/filebeat.runit.service /etc/service/filebeat/run
-RUN chmod +x /etc/service/filebeat/run
 
 # Run all services
 ENTRYPOINT ["/entrypoint.sh"]
