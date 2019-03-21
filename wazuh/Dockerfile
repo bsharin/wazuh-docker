@@ -40,7 +40,7 @@ EXPOSE 55000/tcp 1514/udp 1515/tcp 514/udp 1516/tcp
 # Adding services
 RUN mkdir /etc/service/wazuh && \
     mkdir /etc/service/wazuh-api && \
-    mkdir /etc/service/postfix && \
+    mkdir /etc/service/postfix
 
 COPY config/wazuh.runit.service /etc/service/wazuh/run
 COPY config/wazuh-api.runit.service /etc/service/wazuh-api/run
@@ -48,7 +48,7 @@ COPY config/postfix.runit.service /etc/service/postfix/run
 
 RUN chmod +x /etc/service/wazuh-api/run && \
     chmod +x /etc/service/wazuh/run && \
-    chmod +x /etc/service/postfix/run && \
+    chmod +x /etc/service/postfix/run
 
 # Run all services
 ENTRYPOINT ["/entrypoint.sh"]

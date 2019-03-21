@@ -50,6 +50,10 @@ ARG XPACK_MONITORING="true"
 ARG XPACK_APM="true"
 
 
+COPY --chown=kibana:kibana ./config/wazuh_app_config.sh ./
+
+RUN chmod +x ./wazuh_app_config.sh
+
 COPY --chown=kibana:kibana ./config/kibana_settings.sh ./
 
 RUN chmod +x ./kibana_settings.sh
