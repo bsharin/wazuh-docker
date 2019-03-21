@@ -1,11 +1,9 @@
 # Wazuh App Copyright (C) 2018 Wazuh Inc. (License GPLv2)
-FROM docker.elastic.co/kibana/kibana:6.6.1
-ARG WAZUH_APP_VERSION=3.8.2_6.6.1
+FROM docker.elastic.co/kibana/kibana:6.6.2
+ARG WAZUH_APP_VERSION=3.8.2_6.6.2
 USER root
 
 ADD https://packages.wazuh.com/wazuhapp/wazuhapp-${WAZUH_APP_VERSION}.zip /tmp
-
-ADD https://raw.githubusercontent.com/wazuh/wazuh/3.8/extensions/elasticsearch/wazuh-elastic6-template-alerts.json /usr/share/kibana/config
 
 RUN NODE_OPTIONS="--max-old-space-size=3072" /usr/share/kibana/bin/kibana-plugin install file:///tmp/wazuhapp-${WAZUH_APP_VERSION}.zip &&\
     chown -R kibana:kibana /usr/share/kibana &&\
@@ -43,9 +41,25 @@ ENV PATTERN="" \
     WAZUH_MONITORING_REPLICAS="" \
     ADMIN_PRIVILEGES=""
 
+ARG XPACK_CANVAS="true"
+ARG XPACK_LOGS="true"
+ARG XPACK_INFRA="true"
+ARG XPACK_ML="true"
+ARG XPACK_DEVTOOLS="true"
+ARG XPACK_MONITORING="true"
+ARG XPACK_APM="true"
 
-COPY --chown=kibana:kibana ./config/wazuh_app_config.sh ./
 
-RUN chmod +x ./wazuh_app_config.sh
+COPY --chown=kibana:kibana ./config/kibana_settings.sh ./
+
+RUN chmod +x ./kibana_settings.sh
+
+COPY --chown=kibana:kibana ./config/xpack_config.sh ./
+
+RUN chmod +x ./xpack_config.sh
+
+RUN ./xpack_config.sh
+
+RUN /usr/local/bin/kibana-docker --optimize
 
 ENTRYPOINT /entrypoint.sh
