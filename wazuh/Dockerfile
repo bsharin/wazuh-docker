@@ -50,5 +50,8 @@ RUN chmod +x /etc/service/wazuh-api/run && \
     chmod +x /etc/service/wazuh/run && \
     chmod +x /etc/service/postfix/run
 
+RUN pip install -U setuptools && \
+    pip install docker
+
 # Run all services
 ENTRYPOINT ["/entrypoint.sh"]
